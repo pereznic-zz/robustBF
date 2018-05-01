@@ -1,0 +1,223 @@
+---
+title: "Script and Output"
+output: pdf_document
+---
+Firstly, you have to load the data:
+```{r}
+repro <- as.data.frame(read.csv('Data.csv'))
+```
+Then, for running the partial correlation, you have to install and load the ppcor package
+```{r}
+library(ppcor)
+```
+
+The data has the following structure: The several questionnaires are in the beginning. With column 58 the Have/Want survey starts and is structured in three columns per question. In the first column, participants answered the question "Do you have --" with either TRUE or FALSE. In the second column, participants rated the items on how much they wanted the item if they HAVE the item. If they do not possess the item, the entry is NA. In the third column, participants rated how much they WANT the item they do not have. If they do possess the item, the entry is NA. All ratings are on a scale from 1-9. For the later used loop to get the having-what-you-want and wanting-what-you-have values, the indices of every third column from 58-235 were required.
+```{r}
+
+numbers = seq(58 ,235, 3)
+
+```
+We created variables per subscale of the Have/Want Survey.
+
+```{r}
+accomplishments = numbers[1:9]
+possessions = numbers[c(42,10:28)]
+relations = numbers[c(29:41,47)]
+skills = numbers[c(46,48:60)]
+```
+The following loop creates the have/want and want/have values from  Larsen & McKibban 2008. It sums up all want ratings for all variables, all want ratings for all possessed items and the number of possessed items.
+
+Loop for all the items of the Survey:
+```{r}
+for (j in 1:238){ # total number of observation is 238 - loop through participants
+  counthave = 0 # creating counting variable for possessd items 
+  wantlower = 0 # creating sum variable for all want ratings
+	have = 0 # creating sum variable for all want ratings for all possessed items
+	for (i in numbers){ # loop through the items  
+		if (repro[j,i]){
+			k = i+1 # if they answered first column with TRUE this allows the access of the entry
+# of the next column
+			if (is.na(repro[j,k])){next()} # some participants indicated TRUE but gave 
+# no rating for some items. They have to be skipped so the final score is not NA and have
+# gets not artificially zero inflated compared to the count have.
+			counthave = counthave+1 # adding a count for every possessed item.
+			have=have+repro[j,k]-1 # here, we use - 1 because in the original study 
+# the scale was rescaled from 1 - 9 to 0 - 8. 
+			wantlower = wantlower+repro[j,k]-1}
+		else if (!repro[j,i]){
+			k = i+2 # it says that if first column answered with FALSE, go to third column
+			if (is.na(repro[j,k])){next()}
+			wantlower = wantlower+repro[j,k]-1}
+	}
+  
+  # Following Larsen & McKibban:
+  
+	repro$wantHave[j] = (have/counthave)/8
+	repro$haveWant[j] = have/wantlower
+  
+  repro$nHaves[j] = counthave
+}
+```
+
+Loop for the possession items: 
+```{r}
+for (j in 1:238){
+  counthave = 0
+  wantupper = 0
+  wantlower = 0
+  have = 0
+  for (i in possessions){
+    if (repro[j,i]){
+      k = i+1
+      if (is.na(repro[j,k])){next()}
+      counthave = counthave+1
+      have=have+repro[j,k]-1
+      wantlower = wantlower+repro[j,k]-1}
+    else if (!repro[j,i]){
+      k = i+2
+      if (is.na(repro[j,k])){next()}
+      wantlower = wantlower+repro[j,k]-1}
+  }
+  repro$wantHave_P[j] = (have/counthave)/8
+  repro$haveWant_P[j] = have/wantlower
+  repro$nHaves_P[j] = counthave
+}
+```
+
+Loop for the accomplishment items:
+```{r}
+for (j in 1:238){
+  counthave = 0
+  wantupper = 0
+  wantlower = 0
+  have = 0
+  for (i in accomplishments){
+    if (repro[j,i]){
+      k = i+1
+      if (is.na(repro[j,k])){next()}
+      counthave = counthave+1
+      have=have+repro[j,k]-1
+      wantlower = wantlower+repro[j,k]-1}
+    else if (!repro[j,i]){
+      k = i+2
+      if (is.na(repro[j,k])){next()}
+      wantlower = wantlower+repro[j,k]-1}
+  }
+  repro$wantHave_A[j] = (have/counthave)/8
+  repro$haveWant_A[j] = have/wantlower
+  repro$nHaves_A[j] = counthave
+}
+```
+
+Loop for relation items:
+```{r}
+for (j in 1:238){
+  counthave = 0
+  wantupper = 0
+  wantlower = 0
+	have = 0
+	for (i in relations){
+		if (repro[j,i]){
+			k = i+1
+			if (is.na(repro[j,k])){next()}
+			counthave = counthave+1
+			have=have+repro[j,k]-1
+			wantlower = wantlower+repro[j,k]-1}
+		else if (!repro[j,i]){
+			k = i+2
+			if (is.na(repro[j,k])){next()}
+			wantlower = wantlower+repro[j,k]-1}
+	}
+	repro$wantHave_R[j] = (have/counthave)/8
+	repro$haveWant_R[j] = have/wantlower
+  repro$nHaves_R[j] = counthave
+}
+```
+
+Loop for the skill items:
+```{r}
+for (j in 1:238){
+  counthave = 0
+  wantupper = 0
+  wantlower = 0
+  have = 0
+  for (i in skills){
+    if (repro[j,i]){
+      k = i+1
+      if (is.na(repro[j,k])){next()}
+      counthave = counthave+1
+      have=have+repro[j,k]-1
+      wantlower = wantlower+repro[j,k]-1}
+    else if (!repro[j,i]){
+      k = i+2
+      if (is.na(repro[j,k])){next()}
+      wantlower = wantlower+repro[j,k]-1}
+  }
+  repro$wantHave_S[j] = (have/counthave)/8
+  repro$haveWant_S[j] = have/wantlower
+  repro$nHaves_S[j] = counthave
+}
+```
+
+Then, we created average scores per scale we used. 
+```{r}
+repro$MaxScale_Average = rowSums(repro[,5:17])/13 #Maximization Scale
+repro$GratQ_Average = rowSums(repro[,18:23])/6 # Gratitude Scale
+repro$PGIS_Average = rowSums(repro[,24:32])/9 # Personal Growth Initiative Scale 
+repro$SatLive_Average = rowSums(repro[,33:37])/5 # Satisfaction with Life Scale 
+repro$PurpLive_Average = rowSums(repro[,c(39,41,42,45,47,48,50,52,55)])/6 # Purpose in Live Scale
+repro$PersGro_Average = rowSums(repro[,c(38,40,43,44,46,49,51,53,54)])/6 # Personal Growth Scale
+```
+
+After these preparations, we can start with the partial correlation analyses.
+First, testing the correlation between all the items and Happiness
+
+```{r}
+pcor.test(repro$wantHave, repro$SatLive_Average, repro$haveWant)
+# testing the correlation between wanting what you have and happiness,
+# controlling for having what you want
+pcor.test(repro$haveWant, repro$SatLive_Average, repro$wantHave)
+# testing the correlation between having what you want and happiness, 
+# controlling for wanting what you have 
+pcor.test(repro$nHaves, repro$SatLive_Average, repro$wantHave)
+# testing the correlation between numbers of items you have and happiness,
+# controlling for wanting what you have
+pcor.test(repro$nHaves, repro$SatLive_Average, repro$haveWant)
+# testing the correlation between numbers of items you have and happiness, 
+# controlling for having what you want
+```
+Second, testing the correlation between Accomplishments and Happiness.
+(Several participants did not accomplish any of the accomplishments yet and had no wantHave score (NaN). Therefore, a subset without those was used. pcor.test() does allow missing values)
+```{r}
+pcor.test(repro$wantHave_A[!is.nan(repro$wantHave_A)], repro$SatLive_Average[!is.nan(repro$wantHave_A)]
+, repro$haveWant_A[!is.nan(repro$wantHave_A)])
+pcor.test(repro$haveWant_A[!is.nan(repro$wantHave_A)], repro$SatLive_Average[!is.nan(repro$wantHave_A)]
+, repro$wantHave_A[!is.nan(repro$wantHave_A)])
+pcor.test(repro$nHaves_A[!is.nan(repro$wantHave_A)], repro$SatLive_Average[!is.nan(repro$wantHave_A)]
+, repro$wantHave_A[!is.nan(repro$wantHave_A)])
+pcor.test(repro$nHaves_A, repro$SatLive_Average, repro$haveWant_A)
+```
+
+Third, testing the correlation between Possessions and Happiness: 
+```{r}
+pcor.test(repro$wantHave_P, repro$SatLive_Average, repro$haveWant_P)
+pcor.test(repro$haveWant_P, repro$SatLive_Average, repro$wantHave_P)
+pcor.test(repro$nHaves_P, repro$SatLive_Average, repro$wantHave_P)
+pcor.test(repro$nHaves_P, repro$SatLive_Average, repro$haveWant_P)
+```
+
+Fourth, testing the correlation between Skills and Happiness: 
+```{r}
+pcor.test(repro$wantHave_S, repro$SatLive_Average, repro$haveWant_S)
+pcor.test(repro$haveWant_S, repro$SatLive_Average, repro$wantHave_S)
+pcor.test(repro$nHaves_S, repro$SatLive_Average, repro$wantHave_S)
+pcor.test(repro$nHaves_S, repro$SatLive_Average, repro$haveWant_S)
+```
+
+Fifth, testing the correlation between Relations and Happiness:
+```{r}
+pcor.test(repro$wantHave_R, repro$SatLive_Average, repro$haveWant_R)
+pcor.test(repro$haveWant_R, repro$SatLive_Average, repro$wantHave_R)
+pcor.test(repro$nHaves_R, repro$SatLive_Average, repro$wantHave_R)
+pcor.test(repro$nHaves_R, repro$SatLive_Average, repro$haveWant_R)
+```
