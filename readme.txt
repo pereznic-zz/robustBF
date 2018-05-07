@@ -1,11 +1,29 @@
-------- REPOSITORY ROBUST BAYES FACTORS IN IHT FOR LINEAR REGRESSION COEFFICIENTS -------
+Project duration: September 2017 - May 2018
+Author: Nicolás Pérez
+E-mail: n.perezescobar@uu.nl
+Supervisor: Prof. Dr. Herbert Hoijtink
+Organization: Utrecht University
 
-PROJECT DESCRIPTION: 	The current project consists on the development of a robust Bayes factor. 
-			Through a simulation study, we compare and evaluate the performance of the robust
-			Bayes factor in comparison to a non-robust Bayes factor for IHT in the context
-			of linear regression coefficients. The study consists of a simulation design
-			that considers 30 scenarios which are grouped in three sets of hypotheses. Details		
-			about the design can be found on the paper itself in Section 5. 
+Project title: A Robust Bayes Factor for the Evaluation of Informative Hypotheses with respect to 
+Linear Regression Coefficients
+
+-----------------------------------------------------------------------------------------------------------
+
+PROJECT DESCRIPTION: 	In this paper we introduce a robust Bayes factor for informative hypotheses 
+			testing (IHT) in the context of linear regression models. We first introduce 
+			the concept of robust estimates for the linear regression coefficients, and 
+			subsequently relate it to the Bayes factor as a valuable tool for IHT. The paper 
+			focuses on comparing the performance of two robust Bayes factors with a non-robust 
+			Bayes factor based on common ordinary least squares estimates. Comparisons are 
+			made using a simulation study where outlier presence and heteroscedasticity 	
+			conditions are manipulated. With the simulation results we show the advantage of 
+			robust Bayes factors over non-robust Bayes factors and propose to investigate 
+			further in the definition of criteria to select between the two robust Bayes 
+			factors.
+
+-----------------------------------------------------------------------------------------------------------
+
+REPOSITORY DESCRIPTION
 
 Thanks for your interest in the repository that supports my paper on "Robust Bayes Factor for the 
 Evaluation of Informative Hypotheses with respect to Linear Regression Coefficients". The Archive is 
@@ -44,6 +62,10 @@ composed by the following Files/Folders
 4) "Plots"          ->  Contains three different codes for the generation of the plots regarding 
 			Heteroscedastic residuals, Outlier outline and the Residual Function comparison.
 
+5) "ThesisNPE.pdf"  ->	Thesis paper in pdf format
+
+-----------------------------------------------------------------------------------------------------------
+
 OPEN DATA DISCLAIMER: 	As mentioned in the paper, public open data was used to elaborate the example.
 			Our paper has no relationship with the original study or the collection of the
 			data itself. We provide a copy of the data (retrieved on march 13, 2018) and the
@@ -51,6 +73,21 @@ OPEN DATA DISCLAIMER: 	As mentioned in the paper, public open data was used to e
 			of the original research. Information to contact and about the data repository for
 			that study can be found in: https://osf.io/5dx4v/.
 
+-----------------------------------------------------------------------------------------------------------
 
-Nicolas Perez
-Utrecht University
+USED SOFTWARE VERSIONS
+
+			- R Version 3.4.3
+			- MASS package Version 7.3-47
+			- Bain package Version 0.1.0 (zip file inlcuded)
+			- robust package Version 0.4-18
+			- dplyr package 0.7.4
+			- TexStudio version 2.12.6
+
+-----------------------------------------------------------------------------------------------------------
+
+STORAGE: 		Research archive is available in https://github.com/pereznic/robustBF. An additional
+			copy is stored by Utrecht University for a period of 10 years according to the
+			data policy from the organization. If needed, reader can contact programme 
+			coordinator (Porf. Dr. Irene Klugkist - i.klugkist@uu.nl).
+ 
