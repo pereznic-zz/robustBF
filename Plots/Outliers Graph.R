@@ -1,7 +1,9 @@
 library(MASS)
 library(ggplot2)
 
+# Cofe to genetarte outlier graph (Figure 1)
 
+# Generate Linear regression model data
 genNormData<-function(betas,xCorrels,numPredictors,numObservations,numDatasets,rSquared)
 {
   datasets<-array(0,dim=c(numObservations,numPredictors+1,numDatasets))
@@ -24,6 +26,7 @@ genNormData<-function(betas,xCorrels,numPredictors,numObservations,numDatasets,r
 
 set.seed(65432)
 
+# Generate the outlier graph
 plotData<-data.frame(genNormData(c(0,1),matrix(c(1),nrow=1,ncol=1),1,300,1,0.5))
 colnames(plotData)<-c("x1","y")
 colnames(plotData)<-c("x","y")

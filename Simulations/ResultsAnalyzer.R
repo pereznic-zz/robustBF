@@ -3,16 +3,16 @@ library(ggpubr)
 
 rm(list=ls())
 
-# Matrix with coefficients in each scenario
+# Generate matrix with reference population coefficients in each scenario
 coeffsMat<-matrix(c(3,0,0,0,5,4,3,2,5,4,3,-2),nrow=3,ncol=4,byrow = TRUE)
 refPopcoeffs<-cbind(rep(1:30,3),do.call(rbind, replicate(30, coeffsMat, simplify=FALSE)))
 
-# Read Posterior Probabilities Results
+# Read Posterior Probabilities results obtained in Scenarios simulations
 PP_results_LR<-data.frame()
 PP_results_RLM<-data.frame()
 PP_results_LMROB<-data.frame()
 
-# Read coefficients results
+# Read coefficients results obtained in Scenarios simulations
 Est_results_LR<-data.frame()
 Est_results_RLM<-data.frame()
 Est_results_LMROB<-data.frame()
@@ -57,7 +57,7 @@ for(i in 1:30)
   Est_results_LMROB<-rbind(Est_results_LMROB,temp)
 }
 
-# Renaming variables in the result files
+# Renaming variables in the joint results files
 colnames(PP_results_LR)<-c("H1","H2","H3","H4","Scenario")
 colnames(PP_results_RLM)<-c("H1","H2","H3","H4","Scenario")
 colnames(PP_results_LMROB)<-c("H1","H2","H3","H4","Scenario")
@@ -65,26 +65,26 @@ colnames(Est_results_LR)<-c("Intercept","Beta1","Beta2","Beta3","Scenario")
 colnames(Est_results_RLM)<-c("Intercept","Beta1","Beta2","Beta3","Scenario")
 colnames(Est_results_LMROB)<-c("Intercept","Beta1","Beta2","Beta3","Scenario")
 
-# Summarizing results for coefficients and posterior probabilites
+# Summarizing results for coefficients and posterior probabilites for sets of scenarios under the same hypothesis
 group_H1=seq(from=1, to=28 ,by=3)
 group_H2=seq(from=2, to=29 ,by=3)
 group_H3=seq(from=3, to=30 ,by=3)
 
-# Summarizing coefficients of the LR models
+# Summarizing coefficients of the LR models for sets of scenarios under the same hypothesis
 sumBetasLR<-Est_results_LR %>%
   group_by(Scenario) %>%
   summarise(avgIntercept=mean(Intercept),avgBeta1=mean(Beta1),avgBeta2=mean(Beta2),
             avgBeta3=mean(Beta3)) %>%
   mutate(Method="OLS")
 
-# Summarizing coefficients of the RLM models
+# Summarizing coefficients of the RLM models for sets of scenarios under the same hypothesis
 sumBetasRLM<-Est_results_RLM %>%
   group_by(Scenario) %>%
   summarise(avgIntercept=mean(Intercept),avgBeta1=mean(Beta1),avgBeta2=mean(Beta2),
             avgBeta3=mean(Beta3))%>%
   mutate(Method="MM")
 
-# Summarizing coefficients of the LMROB models
+# Summarizing coefficients of the LMROB models for sets of scenarios under the same hypothesis
 sumBetasLMROB<-Est_results_LMROB %>%
   group_by(Scenario) %>%
   summarise(avgIntercept=mean(Intercept),avgBeta1=mean(Beta1),avgBeta2=mean(Beta2),
@@ -101,19 +101,19 @@ sumPP_RLM<-data.frame(cbind(t(apply(PP_results_RLM[,1:4],1,function(x)x==max(x))
 sumPP_LMROB<-data.frame(cbind(t(apply(PP_results_LMROB[,1:4],1,function(x)x==max(x))),
                    Scenario=PP_results_LMROB[,5]),Method="LMROB")
 
-# Counting and summarizing amount of right classified for LR models
+# Counting and summarizing amount of right classified for LR models for sets of scenarios under the same hypothesis
 class_LR<-sumPP_LR %>%
   group_by(Scenario) %>%
   summarise(nH1=sum(H1),nH2=sum(H2),nH3=sum(H3),nH4=sum(H4)) %>%
   mutate(Method="OLS")
 
-# Counting and summarizing amount of right classified for RLM models
+# Counting and summarizing amount of right classified for RLM models for sets of scenarios under the same hypothesis
 class_RLM<-sumPP_RLM %>%
   group_by(Scenario) %>%
   summarise(nH1=sum(H1),nH2=sum(H2),nH3=sum(H3),nH4=sum(H4)) %>%
   mutate(Method="MM")
 
-# Counting and summarizing amount of right classified for LMROB models
+# Counting and summarizing amount of right classified for LMROB models for sets of scenarios under the same hypothesis
 class_LMROB<-sumPP_LMROB %>%
   group_by(Scenario) %>%
   summarise(nH1=sum(H1),nH2=sum(H2),nH3=sum(H3),nH4=sum(H4)) %>%
@@ -121,7 +121,7 @@ class_LMROB<-sumPP_LMROB %>%
 
 PProbsResults<-do.call("rbind",list(class_LR,class_RLM,class_LMROB))
 
-# Computing the relative bias
+# Computing the  bias
 coeffsResults<-do.call("rbind",list(sumBetasLR,sumBetasRLM,sumBetasLMROB))
 coeffsBias<-(coeffsResults[,2:5]-refPopcoeffs[,2:5])
 coeffsBiasResults<-cbind(coeffsResults[,-(2:5)],coeffsBias)
@@ -135,7 +135,7 @@ PProbsResults_H1<-filter(PProbsResults,Scenario %in% group_H1)
 PProbsResults_H2<-filter(PProbsResults,Scenario %in% group_H2)
 PProbsResults_H3<-filter(PProbsResults,Scenario %in% group_H3)
 
-# Righlty Classified plots
+# Code to generate the righlty classified datasets plot (Figure 6 in the paper)
 PPH1<-ggplot(data=PProbsResults_H1)+
   geom_point(aes(x=Scenario,y=nH1/1000,colour=Method))+
   geom_line(aes(x=Scenario,y=nH1/1000,colour=Method))+
@@ -195,12 +195,12 @@ PPH3<-ggplot(data=PProbsResults_H3)+
 
 PPCs_graph<-ggarrange(PPH1, PPH2, PPH3, ncol = 1, nrow = 3)
 
-# Exporting graph for the PCCs
+# Exporting graph for the PCCs in pdf format
 pdf("PPC_graph.pdf",height=9,width=11)
 PPCs_graph
 dev.off()
 
-# Bias graphs for H1
+# Code to generate the Bias graphs for H1 
 BiasH1Int<-ggplot(data=coeffsBiasResults_H1)+
   geom_point(aes(x=Scenario,y=avgIntercept,colour=Method))+
   geom_line(aes(x=Scenario,y=avgIntercept,colour=Method))+
@@ -282,7 +282,7 @@ BiasH1B3<-ggplot(data=coeffsBiasResults_H1)+
   theme(legend.position = "bottom")
 
 
-# Bias graphs for H2
+# Code to generate the Bias graphs for H2
 BiasH2Int<-ggplot(data=coeffsBiasResults_H2)+
   geom_point(aes(x=Scenario,y=avgIntercept,colour=Method))+
   geom_line(aes(x=Scenario,y=avgIntercept,colour=Method))+
@@ -363,7 +363,7 @@ BiasH2B3<-ggplot(data=coeffsBiasResults_H2)+
   theme(legend.position = "bottom")
 
 
-# Bias graphs for H3
+# Code to generate the Bias graphs for H3
 BiasH3Int<-ggplot(data=coeffsBiasResults_H3)+
   geom_point(aes(x=Scenario,y=avgIntercept,colour=Method))+
   geom_line(aes(x=Scenario,y=avgIntercept,colour=Method))+
@@ -444,7 +444,7 @@ BiasH3B3<-ggplot(data=coeffsBiasResults_H3)+
   theme(legend.position = "bottom")
 
 
-# Multiplot for bias in different hypotheses
+# Exporting the gridplot for bias in different hypotheses (Figure 4)
 bias_graph<-ggarrange(BiasH1Int, BiasH2Int, BiasH3Int, BiasH1B1, BiasH2B1, BiasH3B1,
                       BiasH1B2,BiasH2B2, BiasH3B2, BiasH1B3, BiasH2B3, BiasH3B3,
                       ncol = 3, nrow = 4)
@@ -453,7 +453,7 @@ pdf("bias_graph.pdf",height=14,width=12)
 bias_graph
 dev.off()
 
-# spearate plots for bias for each paraemter
+# Separate plots for bias for each paraemter
 bias_graph_ints<-ggarrange(BiasH1Int, BiasH2Int, BiasH3Int, ncol = 3, nrow = 1)
 bias_graph_b1<-ggarrange(BiasH1B1, BiasH2B1, BiasH3B1, ncol = 3, nrow = 1)
 bias_graph_b2<-ggarrange(BiasH1B2,BiasH2B2, BiasH3B2, ncol = 3, nrow = 1)
@@ -475,7 +475,7 @@ pdf("bias_graph_b3.pdf",height=4,width=13)
 bias_graph_b3
 dev.off()
 
-# Analysis for cover probabilities
+# Read results for cover probabilities
 covProbs<-read.csv2("CovProbs.csv",header=TRUE)
 colnames(covProbs)<-c("Scenario","Method","Intercept","Beta1","Beta2","Beta3")
 covProbs[,3:6]<-covProbs[,3:6]/1000
@@ -485,7 +485,7 @@ covProbs_H1<-filter(covProbs,Scenario %in% group_H1)
 covProbs_H2<-filter(covProbs,Scenario %in% group_H2)
 covProbs_H3<-filter(covProbs,Scenario %in% group_H3)
 
-# Coverage probabiliies graph for H1
+# Code to generate the coverage probabilities graph for H1
 CPH1Int<-ggplot(data=covProbs_H1)+
   geom_point(aes(x=Scenario,y=Intercept,colour=Method))+
   geom_line(aes(x=Scenario,y=Intercept,colour=Method))+
@@ -566,7 +566,7 @@ CPH1B3<-ggplot(data=covProbs_H1)+
   theme(axis.text.x=element_blank())+
   theme(legend.position = "bottom")
 
-# Coverage probabiliies graph for H2
+# Code to generate the coverage probabilities graph for H2
 CPH2Int<-ggplot(data=covProbs_H2)+
   geom_point(aes(x=Scenario,y=Intercept,colour=Method))+
   geom_line(aes(x=Scenario,y=Intercept,colour=Method))+
@@ -647,7 +647,7 @@ CPH2B3<-ggplot(data=covProbs_H2)+
   theme(axis.text.x=element_blank())+
   theme(legend.position = "bottom")
 
-# Coverage probabiliies graph for H3
+# Code to generate the coverage probabilities graph for H3
 CPH3Int<-ggplot(data=covProbs_H3)+
   geom_point(aes(x=Scenario,y=Intercept,colour=Method))+
   geom_line(aes(x=Scenario,y=Intercept,colour=Method))+
@@ -728,7 +728,7 @@ CPH3B3<-ggplot(data=covProbs_H3)+
   theme(axis.text.x=element_blank())+
   theme(legend.position = "bottom")
 
-# Multiplot for bias in different hypotheses
+# Export te gridplot for coverage probabilities in different hypotheses (Figure 5)
 CPH_graph<-ggarrange(CPH1Int, CPH2Int, CPH3Int, CPH1B1, CPH2B1, CPH3B1,
                       CPH1B2,CPH2B2, CPH3B2, CPH1B3, CPH2B3, CPH3B3,
                       ncol = 3, nrow = 4)
@@ -737,7 +737,7 @@ pdf("CPH_graph.pdf",height=14,width=12)
 CPH_graph
 dev.off()
 
-# spearate plots for bias for each paraemter
+# Separate plots for bias for each paraemter
 CPH_graph_ints<-ggarrange(CPH1Int, CPH2Int, CPH3Int, ncol = 3, nrow = 1)
 CPH_graph_b1<-ggarrange(CPH1B1, CPH2B1, CPH3B1, ncol = 3, nrow = 1)
 CPH_graph_b2<-ggarrange(CPH1B2,CPH2B2, CPH3B2, ncol = 3, nrow = 1)
